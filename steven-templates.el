@@ -1,4 +1,49 @@
-;;; steven-templates.el --- Simple text templates  -*- lexical-binding: t -*-
+;;; steven-templates.el --- Simple text templates with consult  -*- lexical-binding: t -*-
+
+;; Author: Steven
+;; Version: 0.1
+;; Package-Requires: ((emacs "28.1") (consult "0.35"))
+;; Keywords: convenience, templates
+;; URL: https://github.com/StevenFolkersma/consult-template.git
+
+;;; Commentary:
+
+;; A lightweight alternative to yasnippet for simple, static text templates.
+;; Templates are plain strings — no snippet syntax, no expansion logic — just
+;; text you want to insert quickly.
+;;
+;; Templates are selected via `consult', which provides live preview of the
+;; template body as you narrow, and annotation showing a truncated preview in
+;; the margin.
+;;
+;; Usage:
+;;
+;;   M-x steven-template-insert   — pick a template and insert it at point
+;;   M-x steven-template-define   — define a new template interactively
+;;
+;; Defining templates:
+;;
+;;   Call `steven-template-define' with an active region to capture the region
+;;   as the template body, or without a region to type the body at a prompt.
+;;   You are always asked for a name.  Templates are persisted to
+;;   `steven-templates-file' and reloaded automatically on next startup.
+;;
+;; Embark integration:
+;;
+;;   With embark installed, you can bind `steven-template-define' to
+;;   `embark-region-map' to define a template directly from any active region:
+;;
+;;     (keymap-set embark-region-map "T" #'steven-template-define)
+;;
+;;   When invoked via embark-act on a region, the region text is pre-filled
+;;   into the body prompt (which you can edit before confirming), and the name
+;;   prompt is always left for interactive input.
+;;
+;; Configuration:
+;;
+;;   (setq steven-templates-file "~/my-templates.el")  ; custom storage path
+
+;;; Code:
 
 (require 'consult)
 
