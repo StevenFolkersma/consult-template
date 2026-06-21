@@ -20,6 +20,7 @@
 ;;
 ;;   M-x consult-template-insert   — pick a template and insert it at point
 ;;   M-x consult-template-define   — define a new template interactively
+;;   M-x consult-template-remove   — delete a template interactively
 ;;
 ;; Defining templates:
 ;;
@@ -102,6 +103,40 @@ confirmation before overwriting.  The mark is deactivated after capture."
     (add-to-list 'consult-templates (cons name body) t)
     (consult--templates-save)
     (message "Template %S saved." name)))
+
+;;; Remove command
+
+;;;###autoload
+(defun consult-template-remove ()
+  "Select a template by name and delete it from `consult-templates'."
+  (interactive)
+  (unless consult-templates
+    (user-error "No templates defined"))
+  (let* ((candidates
+          (mapcar (lambda (pair)
+                    (let ((name (copy-sequence (car pair))))
+                      (put-text-property 0 1 'template--body (cdr pair) name)
+                      name))
+                  consult-templates))
+         (selected
+          (consult--read
+           candidates
+           :prompt "Remove template: "
+           :sort nil
+           :require-match t
+           :category 'consult-template
+           :lookup #'consult--lookup-member
+           :annotate (lambda (cand)
+                       (when-let* ((body (get-text-property 0 'template--body cand)))
+                         (concat "  "
+                                 (truncate-string-to-width
+                                  (replace-regexp-in-string "\n" "↵" body)
+                                  60 nil nil t)))))))
+    (when (and selected
+               (y-or-n-p (format "Delete template %S? " selected)))
+      (setq consult-templates (assoc-delete-all selected consult-templates))
+      (consult--templates-save)
+      (message "Template %S deleted." selected))))
 
 ;;; Internal preview state
 
